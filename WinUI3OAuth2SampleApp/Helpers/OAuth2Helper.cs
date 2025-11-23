@@ -6,6 +6,55 @@ using System.Threading.Tasks;
 namespace WinUI3OAuth2SampleApp.Helpers;
 
 /// <summary>
+/// Configuration class for OAuth2 settings
+/// In production, load these values from secure storage (Credential Manager, Key Vault, etc.)
+/// </summary>
+public class OAuth2Configuration
+{
+    // ⚠️ SECURITY WARNING: These are placeholder values for demonstration only!
+    // In production, load from secure storage such as:
+    // - Windows.Security.Credentials.PasswordVault
+    // - Azure Key Vault
+    // - Encrypted app configuration
+    // - Environment variables (server-side only)
+    
+    public string ClientId { get; set; } = "my_client_id";
+    public string ClientSecret { get; set; } = "REPLACE_WITH_SECURE_RETRIEVAL"; // ⚠️ Load from secure storage!
+    public string RedirectUri { get; set; } = "my-app:/oauth-callback/";
+    public string Scope { get; set; } = "user:email user:birthday";
+    public string AuthorizationEndpoint { get; set; } = "https://my.server.com/oauth/authorize";
+    public string TokenEndpoint { get; set; } = "https://my.server.com/oauth/token";
+
+    /// <summary>
+    /// Example: Load configuration from Windows Credential Manager
+    /// </summary>
+    public static OAuth2Configuration LoadFromSecureStorage()
+    {
+        // Example implementation (uncomment in production):
+        /*
+        var vault = new Windows.Security.Credentials.PasswordVault();
+        var config = new OAuth2Configuration();
+        
+        try
+        {
+            var credential = vault.Retrieve("MyApp_OAuth2", "ClientSecret");
+            config.ClientSecret = credential.Password;
+        }
+        catch (Exception)
+        {
+            // Handle missing credentials
+            throw new InvalidOperationException("OAuth2 credentials not configured. Please run setup.");
+        }
+        
+        return config;
+        */
+        
+        // For this demo, return default (insecure) configuration
+        return new OAuth2Configuration();
+    }
+}
+
+/// <summary>
 /// Helper class that implements OAuth2 authentication flow using the WindowsAppSDK OAuth2Manager
 /// Based on the sample code from src/README.md
 /// 
@@ -28,28 +77,14 @@ namespace WinUI3OAuth2SampleApp.Helpers;
 public class OAuth2Helper
 {
     private readonly MainWindow _mainWindow;
-
-    // OAuth2 Configuration
-    // ⚠️ SECURITY WARNING: Do not hardcode client secrets in production!
-    // 
-    // For production deployments, use secure configuration management:
-    // - Windows Credential Manager (PasswordVault API)
-    // - Azure Key Vault
-    // - Secure configuration files with encryption
-    // - Environment variables (for server-side scenarios)
-    // - User secrets during development (dotnet user-secrets)
-    //
-    // TODO: Replace these with your actual OAuth2 provider's values
-    private const string ClientId = "my_client_id";
-    private const string ClientSecret = "my_client_secret";  // ⚠️ Use secure storage in production!
-    private const string RedirectUri = "my-app:/oauth-callback/";
-    private const string Scope = "user:email user:birthday";
-    private const string AuthorizationEndpoint = "https://my.server.com/oauth/authorize";
-    private const string TokenEndpoint = "https://my.server.com/oauth/token";
+    private readonly OAuth2Configuration _config;
 
     public OAuth2Helper(MainWindow mainWindow)
     {
         _mainWindow = mainWindow;
+        
+        // In production: _config = OAuth2Configuration.LoadFromSecureStorage();
+        _config = new OAuth2Configuration();
     }
 
     /// <summary>
@@ -64,16 +99,16 @@ public class OAuth2Helper
 
             // Create authorization request parameters
             var authRequestParams = AuthRequestParams.CreateForAuthorizationCodeRequest(
-                ClientId,
-                new Uri(RedirectUri));
-            authRequestParams.Scope = Scope;
+                _config.ClientId,
+                new Uri(_config.RedirectUri));
+            authRequestParams.Scope = _config.Scope;
 
             _mainWindow.UpdateStatus("Opening browser for authentication...");
 
             // Request authorization from the OAuth2 provider
             var authRequestResult = await OAuth2Manager.RequestAuthWithParamsAsync(
                 parentWindowId,
-                new Uri(AuthorizationEndpoint),
+                new Uri(_config.AuthorizationEndpoint),
                 authRequestParams);
 
             if (authRequestResult.Response != null)
@@ -110,13 +145,13 @@ public class OAuth2Helper
             var tokenRequestParams = TokenRequestParams.CreateForAuthorizationCodeRequest(authResponse);
             
             // Create client authentication credentials
-            var clientAuth = ClientAuthentication.CreateForBasicAuthorization(ClientId, ClientSecret);
+            var clientAuth = ClientAuthentication.CreateForBasicAuthorization(_config.ClientId, _config.ClientSecret);
 
             _mainWindow.UpdateStatus("Requesting access token...");
 
             // Request token from the OAuth2 provider
             var tokenRequestResult = await OAuth2Manager.RequestTokenAsync(
-                new Uri(TokenEndpoint),
+                new Uri(_config.TokenEndpoint),
                 tokenRequestParams,
                 clientAuth);
 
