@@ -6,8 +6,20 @@ namespace WinUI3OAuth2SampleApp;
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.
 /// 
-/// NOTE: The Microsoft.Security.Authentication.OAuth namespace is from WindowsAppSDK v1.7.0-Preview1.
-/// Verify this namespace is available in your installed SDK version.
+/// IMPORTANT: Namespace Compatibility Note
+/// ========================================
+/// The Microsoft.Security.Authentication.OAuth namespace is from WindowsAppSDK v1.7.0-Preview1.
+/// 
+/// If this namespace is unavailable:
+/// 1. Verify WindowsAppSDK 1.7.0-preview1 or later is installed via NuGet
+/// 2. If using a stable SDK version, OAuth2Manager may not be available yet
+/// 3. Alternative OAuth2 libraries for WinUI 3:
+///    - Microsoft.Identity.Client (MSAL) - for Microsoft identity platform
+///    - IdentityModel.OidcClient - for general OAuth2/OIDC providers
+/// 4. Check WindowsAppSDK release notes for API availability
+/// 
+/// This sample demonstrates the preview API structure. For production apps with stable SDKs,
+/// use one of the alternative libraries mentioned above.
 /// </summary>
 public partial class App : Application
 {

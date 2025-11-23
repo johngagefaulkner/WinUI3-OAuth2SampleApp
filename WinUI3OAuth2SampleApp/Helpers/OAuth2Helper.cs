@@ -9,22 +9,39 @@ namespace WinUI3OAuth2SampleApp.Helpers;
 /// Helper class that implements OAuth2 authentication flow using the WindowsAppSDK OAuth2Manager
 /// Based on the sample code from src/README.md
 /// 
-/// NOTE: The namespace 'Microsoft.Security.Authentication.OAuth' is used as documented in the
-/// WindowsAppSDK v1.7.0-Preview1 release notes. If building fails, verify:
-/// 1. WindowsAppSDK 1.7.0-preview1 or later is installed
-/// 2. The correct namespace for your SDK version (may vary between preview builds)
-/// 3. OAuth2Manager is available in your target Windows version
+/// IMPORTANT: Namespace Compatibility Note
+/// ========================================
+/// The namespace 'Microsoft.Security.Authentication.OAuth' is from WindowsAppSDK v1.7.0-Preview1.
 /// 
-/// If the namespace is different in your SDK version, update the using statement accordingly.
+/// If the namespace is not available in your SDK version:
+/// 1. Verify you have WindowsAppSDK 1.7.0-preview1 or later installed
+/// 2. Check NuGet package version in the .csproj file
+/// 3. Consult the WindowsAppSDK release notes for namespace changes
+/// 4. If the OAuth2Manager API is not available, consider alternatives:
+///    - Microsoft.Identity.Client (MSAL) for Microsoft identity
+///    - IdentityModel.OidcClient for general OAuth2/OIDC
+///    - Custom implementation using HttpClient and browser integration
+/// 
+/// For stable production apps, consider waiting for OAuth2Manager in a stable release
+/// or use the established alternatives mentioned above.
 /// </summary>
 public class OAuth2Helper
 {
     private readonly MainWindow _mainWindow;
 
     // OAuth2 Configuration
+    // ⚠️ SECURITY WARNING: Do not hardcode client secrets in production!
+    // 
+    // For production deployments, use secure configuration management:
+    // - Windows Credential Manager (PasswordVault API)
+    // - Azure Key Vault
+    // - Secure configuration files with encryption
+    // - Environment variables (for server-side scenarios)
+    // - User secrets during development (dotnet user-secrets)
+    //
     // TODO: Replace these with your actual OAuth2 provider's values
     private const string ClientId = "my_client_id";
-    private const string ClientSecret = "my_client_secret";
+    private const string ClientSecret = "my_client_secret";  // ⚠️ Use secure storage in production!
     private const string RedirectUri = "my-app:/oauth-callback/";
     private const string Scope = "user:email user:birthday";
     private const string AuthorizationEndpoint = "https://my.server.com/oauth/authorize";

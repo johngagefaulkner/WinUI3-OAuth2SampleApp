@@ -180,11 +180,26 @@ TokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
 
 ⚠️ **Important Security Notes:**
 
-1. **Never commit client secrets**: The client secret in the code is a placeholder. Use secure configuration management for production
-2. **Token Storage**: Implement secure token storage using Windows Credential Manager or similar
+1. **Never commit client secrets**: The client secret in the code is a placeholder. For production:
+   - Use Windows Credential Manager (PasswordVault API)
+   - Use Azure Key Vault for cloud-based apps
+   - Use encrypted configuration files
+   - Use environment variables (server-side only)
+   - Use `dotnet user-secrets` during development
+   
+2. **Token Storage**: Implement secure token storage:
+   ```csharp
+   // Example using Windows Credential Manager
+   var vault = new Windows.Security.Credentials.PasswordVault();
+   vault.Add(new Windows.Security.Credentials.PasswordCredential(
+       "MyApp_OAuth", "AccessToken", accessToken));
+   ```
+
 3. **HTTPS Only**: Ensure all OAuth2 endpoints use HTTPS
 4. **Validate Responses**: Always validate responses from the OAuth2 provider
 5. **Token Expiration**: Implement proper token refresh logic before tokens expire
+6. **Scope Minimization**: Request only the scopes your application needs
+7. **State Parameter**: Use PKCE or state parameters to prevent CSRF attacks (available in OAuth2Manager)
 
 ## Important Notes
 
