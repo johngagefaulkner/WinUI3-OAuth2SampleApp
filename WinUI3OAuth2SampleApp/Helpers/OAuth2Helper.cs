@@ -7,7 +7,15 @@ namespace WinUI3OAuth2SampleApp.Helpers;
 
 /// <summary>
 /// Helper class that implements OAuth2 authentication flow using the WindowsAppSDK OAuth2Manager
-/// Based on the sample code from the README
+/// Based on the sample code from src/README.md
+/// 
+/// NOTE: The namespace 'Microsoft.Security.Authentication.OAuth' is used as documented in the
+/// WindowsAppSDK v1.7.0-Preview1 release notes. If building fails, verify:
+/// 1. WindowsAppSDK 1.7.0-preview1 or later is installed
+/// 2. The correct namespace for your SDK version (may vary between preview builds)
+/// 3. OAuth2Manager is available in your target Windows version
+/// 
+/// If the namespace is different in your SDK version, update the using statement accordingly.
 /// </summary>
 public class OAuth2Helper
 {

@@ -5,6 +5,9 @@ namespace WinUI3OAuth2SampleApp;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.
+/// 
+/// NOTE: The Microsoft.Security.Authentication.OAuth namespace is from WindowsAppSDK v1.7.0-Preview1.
+/// Verify this namespace is available in your installed SDK version.
 /// </summary>
 public partial class App : Application
 {

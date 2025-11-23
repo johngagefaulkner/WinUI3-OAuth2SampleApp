@@ -186,6 +186,20 @@ TokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
 4. **Validate Responses**: Always validate responses from the OAuth2 provider
 5. **Token Expiration**: Implement proper token refresh logic before tokens expire
 
+## Important Notes
+
+### OAuth2Manager Namespace
+
+The OAuth2Manager API uses the `Microsoft.Security.Authentication.OAuth` namespace as documented for WindowsAppSDK v1.7.0-Preview1. However, this is a preview API and the namespace or availability may change between preview builds.
+
+**If you encounter namespace errors:**
+1. Verify WindowsAppSDK 1.7.0-preview1 or later is installed
+2. Check the official WindowsAppSDK documentation for the correct namespace in your version
+3. The OAuth2Manager feature may be in a different preview channel or require specific Windows builds
+4. Contact Windows App SDK support or check GitHub issues if the API is not available
+
+This sample is based on the documented API structure from the preview announcement. You may need to adjust imports and API calls based on the actual released version.
+
 ## Troubleshooting
 
 ### Protocol Activation Not Working
