@@ -1,6 +1,6 @@
 # WinUI3-OAuth2SampleApp
 
-This is a complete WinUI 3 Desktop packaged application demonstrating OAuth2 authentication using the WindowsAppSDK v1.7.0-Preview1 OAuth2Manager API.
+This app is a sample project built using the "Blank app, packaged (WinUI 3 in Desktop)" project template in Visual Studio 2026, demonstrating usage of the OAuth2Manager API (Windows App SDK v1.7.0 or newer) to perform proper, native, OAuth2 client authentication in a WinUI 3 desktop app. 
 
 ## Overview
 
