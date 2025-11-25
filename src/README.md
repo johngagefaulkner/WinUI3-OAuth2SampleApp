@@ -1,5 +1,10 @@
 # OAuth2Manager Implementation
-> _**NOTE:** I'm temporarily putting this code here from my phone, uploading the source code to the sample app later today._
+> _**NOTE:** I'm temporarily putting this code here from my phone._
+
+# Resources and References
+
+- [Albert Akhmetov | Single Instance Apps in WinUI 3 with C#](https://albertakhmetov.com/posts/2025/single-instance-apps-in-winui-3-with-c%23/)
+- 
 
 ---
 

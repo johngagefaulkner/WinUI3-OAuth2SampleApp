@@ -37,8 +37,8 @@ public partial class App : Application
     /// </summary>
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        m_window = new MainWindow();
-        m_window.Activate();
+        MainWindow = new MainWindow();
+        MainWindow.Activate();
     }
 
     /// <summary>
@@ -79,16 +79,19 @@ public partial class App : Application
     /// <summary>
     /// Displays a message when an unhandled protocol activation occurs
     /// </summary>
-    private void DisplayUnhandledMessageToUser()
+    private void DisplayUnhandledMessageToUser(string unhandledMessage = "The application was activated with an unrecognized protocol.")
     {
         // Create a window to show the error if needed
-        if (m_window == null)
+        if (MainWindow is not null)
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            MainWindow.Activate();
         }
         // In a real app, you might want to show a dialog or notification
+        Debug.WriteLine(unhandledMessage);
     }
 
-    private Window? m_window;
+    /// <summary>
+    /// Gets the current <see cref="MainWindow"/> instance.
+    /// </summary>
+    internal static MainWindow MainWindow { get; } = new MainWindow();
 }
