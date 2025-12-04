@@ -111,22 +111,15 @@ public class OAuth2Helper
                 new Uri(_config.AuthorizationEndpoint),
                 authRequestParams);
 
-            if (authRequestResult.Response != null)
-            {
-                _mainWindow.UpdateStatus("Authorization successful. Exchanging code for token...");
-
-                // Obtain the authorization code and exchange it for tokens
-                await DoTokenExchangeAsync(authRequestResult.Response);
-            }
-            else if (authRequestResult.Failure != null)
-            {
-                var authFailure = authRequestResult.Failure;
-                NotifyFailure(authFailure.Error, authFailure.ErrorDescription);
-            }
-            else
-            {
-                NotifyFailure("Unknown Error", "Authorization request returned no response or failure information.");
-            }
+            await HandleOAuth2ResultAsync(
+                authRequestResult.Response,
+                authRequestResult.Failure,
+                async response =>
+                {
+                    _mainWindow.UpdateStatus("Authorization successful. Exchanging code for token...");
+                    await DoTokenExchangeAsync(response);
+                },
+                "Authorization");
         }
         catch (Exception ex)
         {
@@ -155,43 +148,42 @@ public class OAuth2Helper
                 tokenRequestParams,
                 clientAuth);
 
-            if (tokenRequestResult.Response != null)
-            {
-                var response = tokenRequestResult.Response;
-                var accessToken = response.AccessToken;
-                var tokenType = response.TokenType;
-                var refreshToken = response.RefreshToken;
-
-                _mainWindow.UpdateStatus("Authentication successful! Tokens received.");
-                _mainWindow.UpdateTokenDisplay(accessToken, tokenType, refreshToken);
-
-                // Handle refresh token if present
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    var expiresIn = response.ExpiresIn;
-                    var expires = DateTime.UtcNow.AddSeconds(expiresIn != 0 ? expiresIn : 3600);
-
-                    // Schedule a refresh of the access token
-                    ScheduleRefreshAt(expires, refreshToken);
-                }
-
-                // In a real application, you would use the access token to make API requests
-                DoRequestWithToken(accessToken, tokenType);
-            }
-            else if (tokenRequestResult.Failure != null)
-            {
-                var tokenFailure = tokenRequestResult.Failure;
-                NotifyFailure(tokenFailure.Error, tokenFailure.ErrorDescription);
-            }
-            else
-            {
-                NotifyFailure("Unknown Error", "Token request returned no response or failure information.");
-            }
+            HandleOAuth2Result(
+                tokenRequestResult.Response,
+                tokenRequestResult.Failure,
+                response => HandleTokenResponse(response),
+                "Token");
         }
         catch (Exception ex)
         {
             NotifyFailure("Exception", $"An error occurred during token exchange: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Processes a successful token response
+    /// </summary>
+    private void HandleTokenResponse(TokenResponse response)
+    {
+        var accessToken = response.AccessToken;
+        var tokenType = response.TokenType;
+        var refreshToken = response.RefreshToken;
+
+        _mainWindow.UpdateStatus("Authentication successful! Tokens received.");
+        _mainWindow.UpdateTokenDisplay(accessToken, tokenType, refreshToken);
+
+        // Handle refresh token if present
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            var expiresIn = response.ExpiresIn;
+            var expires = DateTime.UtcNow.AddSeconds(expiresIn != 0 ? expiresIn : 3600);
+
+            // Schedule a refresh of the access token
+            ScheduleRefreshAt(expires, refreshToken);
+        }
+
+        // In a real application, you would use the access token to make API requests
+        DoRequestWithToken(accessToken, tokenType);
     }
 
     /// <summary>
@@ -237,5 +229,87 @@ public class OAuth2Helper
 
         _mainWindow.UpdateStatus(message);
         System.Diagnostics.Debug.WriteLine(message);
+    }
+
+    /// <summary>
+    /// Extracts error information from a failure object using its Error and ErrorDescription properties.
+    /// </summary>
+    private static (string Error, string? ErrorDescription) ExtractErrorInfo<TFailure>(TFailure failure)
+        where TFailure : class
+    {
+        // The OAuth2 SDK failure types have Error and ErrorDescription properties
+        var errorProp = typeof(TFailure).GetProperty("Error");
+        var errorDescProp = typeof(TFailure).GetProperty("ErrorDescription");
+        
+        var error = errorProp?.GetValue(failure)?.ToString() ?? "Unknown";
+        var errorDescription = errorDescProp?.GetValue(failure)?.ToString();
+        
+        return (error, errorDescription);
+    }
+
+    /// <summary>
+    /// Handles OAuth2 result by processing success or failure cases with a common pattern.
+    /// Reduces code duplication between authorization and token exchange flows.
+    /// </summary>
+    /// <typeparam name="TResponse">The type of the response object</typeparam>
+    /// <typeparam name="TFailure">The type of the failure object</typeparam>
+    /// <param name="response">The response from the OAuth2 operation, or null if failed</param>
+    /// <param name="failure">The failure details from the OAuth2 operation, or null if succeeded</param>
+    /// <param name="onSuccess">Action to execute when response is available</param>
+    /// <param name="operationName">Name of the operation for error messages (e.g., "Authorization", "Token")</param>
+    private void HandleOAuth2Result<TResponse, TFailure>(
+        TResponse? response,
+        TFailure? failure,
+        Action<TResponse> onSuccess,
+        string operationName)
+        where TResponse : class
+        where TFailure : class
+    {
+        if (response != null)
+        {
+            onSuccess(response);
+        }
+        else if (failure != null)
+        {
+            var (error, errorDescription) = ExtractErrorInfo(failure);
+            NotifyFailure(error, errorDescription);
+        }
+        else
+        {
+            NotifyFailure("Unknown Error", $"{operationName} request returned no response or failure information.");
+        }
+    }
+
+    /// <summary>
+    /// Handles OAuth2 result asynchronously by processing success or failure cases with a common pattern.
+    /// Reduces code duplication between authorization and token exchange flows.
+    /// </summary>
+    /// <typeparam name="TResponse">The type of the response object</typeparam>
+    /// <typeparam name="TFailure">The type of the failure object</typeparam>
+    /// <param name="response">The response from the OAuth2 operation, or null if failed</param>
+    /// <param name="failure">The failure details from the OAuth2 operation, or null if succeeded</param>
+    /// <param name="onSuccess">Async function to execute when response is available</param>
+    /// <param name="operationName">Name of the operation for error messages (e.g., "Authorization", "Token")</param>
+    private async Task HandleOAuth2ResultAsync<TResponse, TFailure>(
+        TResponse? response,
+        TFailure? failure,
+        Func<TResponse, Task> onSuccess,
+        string operationName)
+        where TResponse : class
+        where TFailure : class
+    {
+        if (response != null)
+        {
+            await onSuccess(response);
+        }
+        else if (failure != null)
+        {
+            var (error, errorDescription) = ExtractErrorInfo(failure);
+            NotifyFailure(error, errorDescription);
+        }
+        else
+        {
+            NotifyFailure("Unknown Error", $"{operationName} request returned no response or failure information.");
+        }
     }
 }

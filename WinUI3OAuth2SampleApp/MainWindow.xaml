@@ -6,6 +6,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Window.Resources>
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        </Style>
+    </Window.Resources>
+
     <ScrollViewer>
         <StackPanel Padding="20" Spacing="12">
             <TextBlock 
@@ -20,11 +30,7 @@
 
             <!-- Configuration Section -->
             <TextBlock Text="OAuth2 Configuration" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,8"/>
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Client ID: my_client_id" FontFamily="Consolas"/>
                     <TextBlock Text="Redirect URI: my-app:/oauth-callback/" FontFamily="Consolas"/>
@@ -44,11 +50,7 @@
 
             <!-- Status Section -->
             <TextBlock Text="Status" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,8"/>
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Border Style="{StaticResource CardBorderStyle}">
                 <TextBlock 
                     x:Name="StatusText" 
                     Text="Ready to authenticate"
@@ -57,11 +59,7 @@
 
             <!-- Token Display Section -->
             <TextBlock Text="Token Information" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,8"/>
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="12">
                     <StackPanel>
                         <TextBlock Text="Access Token:" FontWeight="SemiBold"/>
@@ -94,11 +92,7 @@
 
             <!-- Instructions Section -->
             <TextBlock Text="Instructions" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,8"/>
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="1. Click the 'Sign In with OAuth2' button to start the authentication flow" TextWrapping="Wrap"/>
                     <TextBlock Text="2. A browser window will open with the OAuth2 provider's login page" TextWrapping="Wrap"/>
